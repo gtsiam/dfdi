@@ -16,8 +16,8 @@ authors.workspace = true
 
 [dependencies]
 
-dfdi-core = { version = "0.1.0", path = "./dfdi-core" }
-dfdi-macros = { version = "0.1.0", path = "./dfdi-macros", optional = true }
+dfdi-core = { version = "0.2.0", path = "./dfdi-core" }
+dfdi-macros = { version = "0.2.0", path = "./dfdi-macros", optional = true }
 
 once_cell = "1.16.0"
 
@@ -35,7 +35,7 @@ members = [".", "./dfdi-core", "./dfdi-macros"]
 
 [workspace.package]
 license = "MIT"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.65"
 

@@ -1,1 +1,6 @@
+# Cargo
 /target
+/Cargo.lock
+
+# Editors
+/.vscode
