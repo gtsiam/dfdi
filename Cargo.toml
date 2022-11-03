@@ -1,0 +1,28 @@
+[package]
+name = "dfdi"
+version = "0.1.0"
+edition = "2021"
+description = "Dependency For Dependency Injection"
+authors = ["George Tsiamasiotis <gtsiamasiotis@upnet.gr>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+dfdi-core = { version = "0.1.0", path = "./dfdi-core" }
+dfdi-macros = { version = "0.1.0", path = "./dfdi-macros", optional = true }
+
+once_cell = "1.16.0"
+
+[dev-dependencies]
+
+thiserror = "1.0.37"
+rand = "0.8.5"
+
+
+[features]
+default = ["derive"]
+derive = ["dfdi-macros"]
+
+[workspace]
+members = [".", "./dfdi-core", "./dfdi-macros"]

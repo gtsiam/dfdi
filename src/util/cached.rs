@@ -1,0 +1,61 @@
+use once_cell::sync::OnceCell;
+
+use dfdi_core::{Context, Provider, Service};
+
+/// Cached provider
+pub struct Cached<'cx, S, P>
+where
+    S: Service,
+    P: Provider<'cx, S>,
+{
+    provider: P,
+    cache: OnceCell<S::Output<'cx>>,
+}
+
+impl<'cx, S, P> Cached<'cx, S, P>
+where
+    S: Service,
+    P: Provider<'cx, S>,
+{
+    /// Create a new cached provider
+    pub fn new(provider: P) -> Self {
+        Self {
+            provider,
+            cache: OnceCell::new(),
+        }
+    }
+}
+
+impl<'cx, S, F> Cached<'cx, S, F>
+where
+    S: Service,
+    F: Fn(&'cx Context) -> S::Output<'cx> + 'cx,
+{
+    /// Equivelant to calling [`Cached::new`] with a provider wrapped in a
+    /// [`provider_fn`](crate::util::provider_fn) type hint
+    #[inline(always)]
+    pub fn new_fn(provider: F) -> Self {
+        Self::new(provider)
+    }
+}
+
+impl<'cx, S, P> Provider<'cx, &'static S> for Cached<'cx, S, P>
+where
+    S: Service,
+    P: Provider<'cx, S>,
+{
+    fn provide(&'cx self, cx: &'cx Context) -> &'cx S::Output<'cx> {
+        self.cache.get_or_init(|| self.provider.provide(cx))
+    }
+}
+
+impl<'cx, S, P> Default for Cached<'cx, S, P>
+where
+    S: Service,
+    P: Provider<'cx, S> + Default,
+{
+    #[inline]
+    fn default() -> Self {
+        Self::new(P::default())
+    }
+}

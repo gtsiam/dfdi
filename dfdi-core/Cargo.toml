@@ -1,0 +1,10 @@
+[package]
+name = "dfdi-core"
+version = "0.1.0"
+edition = "2021"
+description = "The core components of dfdi"
+authors = ["George Tsiamasiotis <gtsiamasiotis@upnet.gr>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]

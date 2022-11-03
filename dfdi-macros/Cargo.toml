@@ -1,0 +1,20 @@
+[package]
+name = "dfdi-macros"
+version = "0.1.0"
+edition = "2021"
+description = "Macros for dfdi"
+authors = ["George Tsiamasiotis <gtsiamasiotis@upnet.gr>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = "1.0.102"
+quote = "1.0.21"
+proc-macro2 = "1.0.47"
+proc-macro-crate = "1.2.1"
+
+[dev-dependencies]
+dfdi = { path = ".." }
