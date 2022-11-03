@@ -3,7 +3,7 @@ use std::{
     fmt::{Debug, Display},
 };
 
-/// Error while binding a service to a provider
+/// Error while binding a service
 #[non_exhaustive]
 #[derive(Debug)]
 pub enum BindError {
@@ -23,6 +23,7 @@ impl Display for BindError {
     }
 }
 
+/// Error while unbinding a service
 #[non_exhaustive]
 #[derive(Debug)]
 pub enum UnbindError {

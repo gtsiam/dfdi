@@ -1,7 +1,4 @@
-use dfdi::{
-    util::{Cached, CachedRef},
-    Context, Service,
-};
+use dfdi::{Cached, CachedService, Context, Service};
 
 #[derive(Debug, Clone, Service)]
 struct Credentials {
@@ -30,7 +27,7 @@ fn main() {
         password: "admin".to_string(),
     };
 
-    cx.bind_with::<&Credentials>(CachedRef(credentials));
+    cx.bind_with::<&Credentials>(CachedService(credentials));
 
     cx.bind_with::<&User>(Cached::new_fn(|cx| {
         let token = cx.resolve::<&Credentials>();

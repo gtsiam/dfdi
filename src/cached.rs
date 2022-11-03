@@ -3,6 +3,9 @@ use once_cell::sync::OnceCell;
 use dfdi_core::{Context, Provider, Service};
 
 /// Cached provider
+///
+/// A provider that calls the underlying provider on the first call and returns the result of that
+/// on all calls
 pub struct Cached<'cx, S, P>
 where
     S: Service,
@@ -32,7 +35,7 @@ where
     F: Fn(&'cx Context) -> S::Output<'cx> + 'cx,
 {
     /// Equivelant to calling [`Cached::new`] with a provider wrapped in a
-    /// [`provider_fn`](crate::util::provider_fn) type hint
+    /// [`provider_fn`](crate::provider_fn) type hint
     #[inline(always)]
     pub fn new_fn(provider: F) -> Self {
         Self::new(provider)
