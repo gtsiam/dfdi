@@ -21,7 +21,7 @@ use crate::Context;
 pub trait Provider<'cx, S: Service>: Send + Sync + 'cx {
     /// Build the output object
     // #! Remember to keep in sync with `ProvideFn`
-    fn provide(&'cx self, cx: &'cx Context) -> S::Output<'cx>;
+    fn provide(&'cx self, cx: &'cx Context, arg: S::Argument<'_>) -> S::Output<'cx>;
 }
 
 /// A pointer to the underlying provider function.
@@ -37,7 +37,7 @@ pub trait Provider<'cx, S: Service>: Send + Sync + 'cx {
 /// - The first argument must live for 'cx
 // #! This __MUST__ be kept in sync with `Provider::provide` or bad things will happen
 pub(crate) type ProvideFn<'cx, S> =
-    unsafe fn(*const (), &'cx Context) -> <S as Service>::Output<'cx>;
+    unsafe fn(*const (), &'cx Context, <S as Service>::Argument<'_>) -> <S as Service>::Output<'cx>;
 
 /// A key to an object that can be created by a [`Provider`] and stored in a [`Context`].
 ///
@@ -46,4 +46,6 @@ pub(crate) type ProvideFn<'cx, S> =
 pub trait Service: 'static {
     /// The result of a service resolution
     type Output<'cx>;
+
+    type Argument<'arg>;
 }

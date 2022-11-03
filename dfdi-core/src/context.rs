@@ -74,7 +74,7 @@ impl Context<'_> {
     #[track_caller]
     pub fn bind_fn<'cx, S: Service>(
         &'cx mut self,
-        provider_fn: impl Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
+        provider_fn: impl Fn(&'cx Context, S::Argument<'_>) -> S::Output<'cx> + Send + Sync + 'cx,
     ) {
         if let Err(err) = self.try_bind_fn::<S>(provider_fn) {
             panic!("{}", err)
@@ -112,14 +112,32 @@ impl Context<'_> {
         }
     }
 
-    /// Resolve the service `S` based on the already registered providers
+    /// Resolve the service `S` using the default service argument.
+    ///
+    /// # Panics
+    /// If no provider is registered for this service. See [`try_resolve`](Self::try_resolve) for a
+    /// fallible version of this function.
+    #[inline(always)]
+    #[track_caller]
+    pub fn resolve<S>(&self) -> S::Output<'_>
+    where
+        S: Service,
+        S::Argument<'static>: Default,
+    {
+        self.resolve_with::<S>(Default::default())
+    }
+
+    /// Resolve the service `S` given the service argument.
     ///
     /// # Panics
     /// If no provider is registered for this service. See [`try_resolve`](Self::try_resolve) for a
     /// fallible version of this function.
     #[track_caller]
-    pub fn resolve<S: Service>(&self) -> S::Output<'_> {
-        match self.try_resolve::<S>() {
+    pub fn resolve_with<S>(&self, arg: S::Argument<'_>) -> S::Output<'_>
+    where
+        S: Service,
+    {
+        match self.try_resolve_with::<S>(arg) {
             Some(s) => s,
             None => panic!("no provider for service `{}`", type_name::<S>()),
         }
@@ -157,7 +175,7 @@ impl Context<'_> {
     #[inline(always)]
     pub fn try_bind_fn<'cx, S: Service>(
         &'cx mut self,
-        provider_fn: impl Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
+        provider_fn: impl Fn(&'cx Context, S::Argument<'_>) -> S::Output<'cx> + Send + Sync + 'cx,
     ) -> Result<(), BindError> {
         self.try_bind_with::<S>(provider_fn)
     }
@@ -177,7 +195,7 @@ impl Context<'_> {
         self.try_bind_with(P::default())
     }
 
-    /// Try to delete the provider bound to the service `S`
+    /// Try to delete the provider bound to the service `S`.
     ///
     /// # Fails
     /// This function will fail if no provider is bound to the service.
@@ -193,19 +211,37 @@ impl Context<'_> {
         }
     }
 
-    /// Try to resolve the service `S` based on the already registered providers
+    /// Try to resolve the service `S` using the default service argument.
     ///
     /// # Fails
     /// This function will fail if no provider is bound to the service.
     ///
-    /// See [`unbind`](Self::unbind) for the panicking version of this function.
-    pub fn try_resolve<S: Service>(&self) -> Option<S::Output<'_>> {
+    /// See [`resolve`](Self::resolve) for the panicking version of this function.
+    #[inline(always)]
+    pub fn try_resolve<S>(&self) -> Option<S::Output<'_>>
+    where
+        S: Service,
+        S::Argument<'static>: Default,
+    {
+        self.try_resolve_with::<S>(Default::default())
+    }
+
+    /// Try to resolve the service `S` given the service argument.
+    ///
+    /// # Fails
+    /// This function will fail if no provider is bound to the service.
+    ///
+    /// See [`resolve_with`](Self::resolve_with) for the panicking version of this function.
+    pub fn try_resolve_with<S>(&self, arg: S::Argument<'_>) -> Option<S::Output<'_>>
+    where
+        S: Service,
+    {
         let provider = self.providers.get(&TypeId::of::<S>())?;
 
         // SAFETY:
         // - We know that the provider was created for the service `S`, since it came from the
         //   `self.providers` map
-        Some(unsafe { provider.provide::<S>(self) })
+        Some(unsafe { provider.provide::<S>(self, arg) })
     }
 }
 
@@ -251,7 +287,7 @@ impl DynProvider {
         //
         // SAFETY:
         // - fn pointers are always non-null
-        let provide_fn = unsafe { NonNull::new_unchecked(P::provide as fn(_, _) -> _ as _) };
+        let provide_fn = unsafe { NonNull::new_unchecked(P::provide as fn(_, _, _) -> _ as _) };
 
         // Create the `this` pointer.
         //
@@ -270,14 +306,14 @@ impl DynProvider {
     ///
     /// SAFETY:
     /// - The `DynProvider` was created for the service `S`
-    unsafe fn provide<'cx, S>(&'cx self, cx: &'cx Context) -> S::Output<'cx>
+    unsafe fn provide<'cx, S>(&'cx self, cx: &'cx Context, arg: S::Argument<'_>) -> S::Output<'cx>
     where
         S: Service,
     {
         let this = self.this.as_ptr() as *const ();
         let provide_fn: ProvideFn<'cx, S> = std::mem::transmute(self.provide_fn);
 
-        provide_fn(this, cx)
+        provide_fn(this, cx, arg)
     }
 }
 

@@ -19,7 +19,11 @@ where
     S::Output<'cx>: Send + Sync,
 {
     #[inline(always)]
-    fn provide(&'cx self, _cx: &'cx Context) -> &'cx <S as Service>::Output<'cx> {
+    fn provide(
+        &'cx self,
+        _cx: &'cx Context,
+        _arg: S::Argument<'_>,
+    ) -> &'cx <S as Service>::Output<'cx> {
         &self.0
     }
 }

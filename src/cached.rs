@@ -32,7 +32,7 @@ where
 impl<'cx, S, F> Cached<'cx, S, F>
 where
     S: Service,
-    F: Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
+    F: Fn(&'cx Context, S::Argument<'_>) -> S::Output<'cx> + Send + Sync + 'cx,
 {
     /// Equivelant to calling [`Cached::new`] with a provider wrapped in a
     /// [`provider_fn`](crate::provider_fn) type hint
@@ -48,8 +48,8 @@ where
     S::Output<'cx>: Send + Sync,
     P: Provider<'cx, S>,
 {
-    fn provide(&'cx self, cx: &'cx Context) -> &'cx S::Output<'cx> {
-        self.cache.get_or_init(|| self.provider.provide(cx))
+    fn provide(&'cx self, cx: &'cx Context, arg: S::Argument<'_>) -> &'cx S::Output<'cx> {
+        self.cache.get_or_init(|| self.provider.provide(cx, arg))
     }
 }
 

@@ -29,7 +29,7 @@ fn main() {
 
     cx.bind_with::<&Credentials>(CachedService(credentials));
 
-    cx.bind_with::<&User>(Cached::new_fn(|cx| {
+    cx.bind_with::<&User>(Cached::new_fn(|cx, _arg| {
         let token = cx.resolve::<&Credentials>();
         match (&*token.username, &*token.password) {
             (username @ "admin", "admin") => Ok(User { username }),

@@ -143,6 +143,7 @@ pub fn derive_service(input: DeriveInput) -> Result<TokenStream> {
     let expanded = quote! {
         impl #ty_params #service_trait for #ty #static_lt_generics {
             type Output<'cx> = #output_ty;
+            type Argument<'arg> = ();
         }
     };
 
