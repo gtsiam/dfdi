@@ -7,10 +7,10 @@ struct Credentials {
 }
 
 #[derive(Debug, Service)]
-#[service(error = UserError)]
-struct User<'cx> {
+#[service(() -> Result<Self, UserError>)]
+struct User<'a> {
     #[allow(unused)]
-    username: &'cx str,
+    username: &'a str,
 }
 
 #[derive(Debug, thiserror::Error)]

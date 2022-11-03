@@ -11,6 +11,8 @@ where
     }
 }
 
+// Common service types
+
 impl<S: Service> Service for &'static S {
     type Output<'cx> = &'cx S::Output<'cx>;
     type Argument<'arg> = S::Argument<'arg>;

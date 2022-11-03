@@ -13,7 +13,7 @@ use crate::Context;
 ///
 /// // Create a context and bind Random to a provider
 /// let mut cx = Context::new();
-/// cx.bind_fn::<Random>(|_cx: &Context| Random(rand::random()));
+/// cx.bind_fn::<Random>(|_cx, _arg| Random(rand::random()));
 ///
 /// // Print a random number
 /// println!("{}", cx.resolve::<Random>().0);
@@ -47,5 +47,6 @@ pub trait Service: 'static {
     /// The result of a service resolution
     type Output<'cx>;
 
+    /// An argument for the service provider
     type Argument<'arg>;
 }

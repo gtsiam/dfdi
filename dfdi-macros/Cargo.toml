@@ -18,7 +18,7 @@ authors.workspace = true
 proc-macro = true
 
 [dependencies]
-syn = "1.0.102"
+syn = { version = "1.0.102", features = ["visit-mut"] }
 quote = "1.0.21"
 proc-macro2 = "1.0.47"
 proc-macro-crate = "1.2.1"
