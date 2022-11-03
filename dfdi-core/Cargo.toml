@@ -1,10 +1,24 @@
 [package]
 name = "dfdi-core"
-version = "0.1.0"
-edition = "2021"
 description = "The core components of dfdi"
-authors = ["George Tsiamasiotis <gtsiamasiotis@upnet.gr>"]
+
+license.workspace = true
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+authors.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[dev-dependencies]
+
+dfdi = { path = ".." }
+
+thiserror = "1.0.37"
+rand = "0.8.5"

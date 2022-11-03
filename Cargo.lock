@@ -22,6 +22,11 @@ dependencies = [
 [[package]]
 name = "dfdi-core"
 version = "0.1.0"
+dependencies = [
+ "dfdi",
+ "rand",
+ "thiserror",
+]
 
 [[package]]
 name = "dfdi-macros"

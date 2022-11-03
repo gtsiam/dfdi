@@ -5,42 +5,31 @@ use crate::Context;
 ///
 /// Any type implementing the appropriate [`FnMut`] trait can be used as a provider:
 /// ```
-/// # use dfdi::{Service, Context};
+/// # use dfdi_core::{Service, Context};
 /// # use std::convert::Infallible;
 /// // A service providing a random number
 /// struct Random(u64);
 ///
 /// impl Service for Random {
-///     type Error = Infallible;
 ///     type Output<'cx> = Random;
 /// }
 ///
 /// // Create a context and bind Random to a provider
 /// let mut cx = Context::new();
-/// cx.bind_with::<Random>(|_cx: &Context| Ok(Random(rand::random())));
+/// cx.bind_with::<Random>(|_cx: &Context| Random(rand::random()));
 ///
 /// // Print a random number
-/// println!("{}", cx.resolve::<Random>().unwrap().0);
-///
+/// println!("{}", cx.resolve::<Random>().0);
 /// ```
-///
-/// # (!) Closures returning references
-/// Rust has trouble inferring the required lifetime bounds for closures when they return
-/// non-`'static` services. Instead, you can use an explicit function, or hint at the compiler what
-/// the correct lifetimes are using either [`util::provider_fn`](crate::util::provider_fn) or
-/// [`Context::bind_fn`](crate::Context::bind_fn).
-///
 /// ```
-/// # use dfdi::{Service, Provider, Context, ProviderError};
+/// # use dfdi::{Service, Provider, Context};
 /// # use std::convert::Infallible;
-///
 /// #[derive(Service)]
 /// struct Random(u64);
 ///
 /// // Create a context and bind Random to a provider
 /// let mut cx = Context::new();
-/// cx.bind_with::<Random>(|_cx: &Context| Ok(Random(rand::random())));
-///
+/// cx.bind_with::<Random>(|_cx: &Context| Random(rand::random()));
 /// ```
 pub trait Provider<'cx, S: Service>: 'cx {
     /// Build the output object
