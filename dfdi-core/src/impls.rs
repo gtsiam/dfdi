@@ -5,7 +5,7 @@ use crate::{Context, Provider, Service};
 /// Allow `Fn` functions to act as providers.
 impl<'cx, F, S> Provider<'cx, S> for F
 where
-    F: Fn(&'cx Context) -> S::Output<'cx> + 'cx,
+    F: Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
     S: Service,
 {
     fn provide(&'cx self, cx: &'cx Context) -> S::Output<'cx> {

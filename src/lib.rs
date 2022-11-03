@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
-pub use dfdi_core::*;
+pub use dfdi_core::{BindError, Context, Provider, Service, UnbindError};
+
 #[cfg(feature = "derive")]
 pub use dfdi_macros::Service;
 
@@ -15,7 +16,7 @@ pub use cached_service::CachedService;
 /// This may become unnecessary once type inference improves a bit, but for now it's useful to have.
 #[inline(always)]
 pub fn provider_fn<'cx, S: Service>(
-    func: impl Fn(&'cx Context) -> S::Output<'cx> + 'cx,
+    func: impl Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
 ) -> impl Provider<'cx, S> {
     func
 }

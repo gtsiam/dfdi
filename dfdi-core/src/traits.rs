@@ -18,7 +18,7 @@ use crate::Context;
 /// // Print a random number
 /// println!("{}", cx.resolve::<Random>().0);
 /// ```
-pub trait Provider<'cx, S: Service>: 'cx {
+pub trait Provider<'cx, S: Service>: Send + Sync + 'cx {
     /// Build the output object
     // #! Remember to keep in sync with `ProvideFn`
     fn provide(&'cx self, cx: &'cx Context) -> S::Output<'cx>;

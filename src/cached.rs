@@ -32,7 +32,7 @@ where
 impl<'cx, S, F> Cached<'cx, S, F>
 where
     S: Service,
-    F: Fn(&'cx Context) -> S::Output<'cx> + 'cx,
+    F: Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
 {
     /// Equivelant to calling [`Cached::new`] with a provider wrapped in a
     /// [`provider_fn`](crate::provider_fn) type hint
@@ -45,6 +45,7 @@ where
 impl<'cx, S, P> Provider<'cx, &'static S> for Cached<'cx, S, P>
 where
     S: Service,
+    S::Output<'cx>: Send + Sync,
     P: Provider<'cx, S>,
 {
     fn provide(&'cx self, cx: &'cx Context) -> &'cx S::Output<'cx> {

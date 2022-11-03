@@ -13,7 +13,11 @@ impl<'cx, S: Service> CachedService<'cx, S> {
     }
 }
 
-impl<'cx, S: Service> Provider<'cx, &'static S> for CachedService<'cx, S> {
+impl<'cx, S> Provider<'cx, &'static S> for CachedService<'cx, S>
+where
+    S: Service,
+    S::Output<'cx>: Send + Sync,
+{
     #[inline(always)]
     fn provide(&'cx self, _cx: &'cx Context) -> &'cx <S as Service>::Output<'cx> {
         &self.0

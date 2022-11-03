@@ -16,8 +16,18 @@ pub struct Context<'pcx> {
     // examples of this in the past.
     providers: HashMap<TypeId, DynProvider>,
 
+    /// Ensure that this context does not outlive its parent. This is required since we only want to
+    /// drop providers once, on the parent scope.
     _phantom: PhantomData<&'pcx ()>,
 }
+
+// SAFETY:
+// - All providers must be Send
+unsafe impl Send for Context<'_> {}
+
+// SAFETY:
+// - All providers mustbe Sync
+unsafe impl Sync for Context<'_> {}
 
 impl Context<'_> {
     /// Create an empty context
@@ -64,7 +74,7 @@ impl Context<'_> {
     #[track_caller]
     pub fn bind_fn<'cx, S: Service>(
         &'cx mut self,
-        provider_fn: impl Fn(&'cx Context) -> S::Output<'cx> + 'cx,
+        provider_fn: impl Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
     ) {
         if let Err(err) = self.try_bind_fn::<S>(provider_fn) {
             panic!("{}", err)
@@ -147,7 +157,7 @@ impl Context<'_> {
     #[inline(always)]
     pub fn try_bind_fn<'cx, S: Service>(
         &'cx mut self,
-        provider_fn: impl Fn(&'cx Context) -> S::Output<'cx> + 'cx,
+        provider_fn: impl Fn(&'cx Context) -> S::Output<'cx> + Send + Sync + 'cx,
     ) -> Result<(), BindError> {
         self.try_bind_with::<S>(provider_fn)
     }
